@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>设置信息</title>
+  <title>设置，信息</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <meta name="theme-color" content="#f3f4f6" />
   <style>
@@ -176,7 +176,7 @@
     <!-- 头部卡片 -->
     <div class="card header-card">
       <div class="header-icon">📱</div>
-      <h1>设置信息</h1>
+      <h1>设置，信息</h1>
       <p class="header-sub">本页面只在本地解析你的设备与网络信息，不会上传到服务器</p>
 
       <div class="tag-list">
@@ -378,6 +378,12 @@
     const device = detectDevice();
     const os = detectOS();
     const browser = detectBrowser();
+
+    // 顶部 emoji：手机=📱，其它=💻
+    const headerIcon = document.querySelector(".header-icon");
+    if (headerIcon) {
+      headerIcon.textContent = device === "手机" ? "📱" : "💻";
+    }
 
     document.getElementById("device").innerText = device;
     document.getElementById("os").innerText = os;
