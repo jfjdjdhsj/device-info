@@ -270,12 +270,38 @@
       return "桌面电脑 / 笔记本";
     }
 
+    // ✅ 修复后的操作系统检测：优先识别 iPhone / iPad / Android，再判断 macOS 等
     function detectOS() {
-      if (/windows/i.test(ua)) return "Windows";
-      if (/mac os/i.test(ua)) return "macOS";
-      if (/android/i.test(ua)) return "Android";
-      if (/iphone|ipad|ipod/i.test(ua)) return "iOS";
-      if (/linux/i.test(ua)) return "Linux";
+      const lower = ua.toLowerCase();
+
+      // iPhone / iPad / iPod / iOS
+      if (/iphone|ipad|ipod|ios/.test(lower)) {
+        const m = ua.match(/OS (\d+[_\.\d]*)/);
+        if (m && m[1]) {
+          const v = m[1].replace(/_/g, ".");
+          return "iOS " + v;
+        }
+        return "iOS";
+      }
+
+      // Android
+      if (/android/.test(lower)) {
+        const m = ua.match(/Android (\d+[\.\d]*)/i);
+        return m && m[1] ? "Android " + m[1] : "Android";
+      }
+
+      // Windows 细分可选
+      if (/windows nt 10\.0/.test(lower)) return "Windows 10/11";
+      if (/windows nt 6\.3/.test(lower)) return "Windows 8.1";
+      if (/windows nt 6\.2/.test(lower)) return "Windows 8";
+      if (/windows nt 6\.1/.test(lower)) return "Windows 7";
+      if (/windows/.test(lower)) return "Windows";
+
+      // macOS（Mac 电脑）
+      if (/macintosh|mac os x/.test(lower)) return "macOS";
+
+      if (/linux/.test(lower)) return "Linux";
+
       return "未知";
     }
 
@@ -290,10 +316,11 @@
     function getBrowserVersion() {
       const match =
         ua.match(/(chrome|edg|firefox)\/([\d\.]+)/i) ||
-        ua.match(/version\/([\d\.]+).*safari/i);
+        ua.match(/Version\/([\d\.]+).*Safari/i);
       if (!match) return "未知";
-      if (/safari/i.test(match[0])) {
-        return "Safari " + (match[1] || "");
+      // Safari
+      if (/safari/i.test(ua) && /version\//i.test(ua)) {
+        return "Safari " + match[1];
       }
       return match[1].toUpperCase() + " " + match[2];
     }
@@ -379,10 +406,13 @@
     const os = detectOS();
     const browser = detectBrowser();
 
-    // 顶部 emoji：手机=📱，其它=💻
+    // 顶部 emoji：手机=📱，平板=📲，其它=💻
     const headerIcon = document.querySelector(".header-icon");
     if (headerIcon) {
-      headerIcon.textContent = device === "手机" ? "📱" : "💻";
+      headerIcon.textContent =
+        device === "手机" ? "📱" :
+        device === "平板" ? "📲" :
+        "💻";
     }
 
     document.getElementById("device").innerText = device;
