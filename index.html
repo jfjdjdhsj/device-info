@@ -359,32 +359,15 @@
       }
     }
 
-    // 公网 IP（通过 ip.sb）
+    // 公网 IP（通过 https://api.ip.sb/jsonip，格式 {"ip":"x.x.x.x"}）
     function loadPublicIP() {
       const el = document.getElementById("public-ip");
       if (!el) return;
       el.textContent = "检测中...";
-      fetch("https://ip.sb/api/")
-        .then((res) =>
-          res
-            .json()
-            .then((data) => ({ ok: true, data }))
-            .catch(() => res.text().then((t) => ({ ok: false, data: t })))
-        )
-        .then((result) => {
-          let ip;
-          if (!result.ok) {
-            ip = (result.data || "").trim();
-          } else {
-            const d = result.data || {};
-            ip =
-              d.ip ||
-              d.ipv4 ||
-              d.ipv6 ||
-              d.address ||
-              d.query ||
-              JSON.stringify(d);
-          }
+      fetch("https://api.ip.sb/jsonip")
+        .then((res) => res.json())
+        .then((data) => {
+          const ip = data && data.ip;
           el.textContent = ip || "获取失败";
         })
         .catch(() => {
